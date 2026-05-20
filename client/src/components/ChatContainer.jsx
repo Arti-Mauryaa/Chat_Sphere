@@ -183,6 +183,10 @@ const Container = styled.div`
   flex: 1;
   transition: all 0.3s ease;
 
+  @media screen and (max-width: 768px) {
+    grid-template-rows: 4rem 1fr 4.8rem;
+  }
+
   .chat-header {
     display: flex;
     justify-content: space-between;
@@ -265,6 +269,10 @@ const Container = styled.div`
     flex-direction: column;
     gap: 1rem;
     overflow-y: auto;
+
+    @media screen and (max-width: 768px) {
+      padding: 1rem;
+    }
 
     &::-webkit-scrollbar {
       width: 5px;

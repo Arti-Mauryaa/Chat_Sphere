@@ -123,16 +123,25 @@ export default function Chat() {
 
 const Container = styled.div`
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
+  width: 100dvw;
   display: flex;
   justify-content: center;
   align-items: center;
   background: ${(props) => props.theme.bgGrad};
   transition: all 0.5s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
   .container {
     height: 85vh;
+    height: 85dvh;
     width: 85vw;
+    width: 85dvw;
     background: ${(props) => props.theme.containerBg};
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -157,16 +166,25 @@ const Container = styled.div`
     @media screen and (min-width: 768px) and (max-width: 1200px) {
       grid-template-columns: 32% 68%;
       width: 95vw;
+      width: 95dvw;
       height: 90vh;
+      height: 90dvh;
       border-radius: 1.2rem;
     }
 
     @media screen and (max-width: 768px) {
       grid-template-columns: 100%;
       height: 100vh;
+      height: 100dvh;
       width: 100vw;
+      width: 100dvw;
       border-radius: 0;
       border: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
 
       .hide-mobile {
         display: none !important;

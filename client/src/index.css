@@ -14,12 +14,18 @@ textarea {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+html,
 body {
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
+  width: 100dvw;
   max-height: 100vh;
+  max-height: 100dvh;
   max-width: 100vw;
+  max-width: 100dvw;
   overflow: hidden;
+  position: fixed;
 }
 
 /* Custom Scrollbars */

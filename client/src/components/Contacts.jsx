@@ -179,6 +179,10 @@ const Container = styled.div`
   transition: all 0.3s ease;
   position: relative;
 
+  @media screen and (max-width: 768px) {
+    grid-template-rows: 4rem 4rem 1fr 5rem;
+  }
+
   .brand {
     display: flex;
     align-items: center;
@@ -368,6 +372,7 @@ const Container = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: 0 1.2rem;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     gap: 0.5rem;
     z-index: 10;
 

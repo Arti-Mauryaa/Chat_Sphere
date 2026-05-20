@@ -60,6 +60,7 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.sidebarBg}66;
   border-top: 1px solid ${(props) => props.theme.border};
   padding: 0 2rem;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   position: relative;
   gap: 1rem;
   height: 100%;
@@ -67,6 +68,7 @@ const Container = styled.div`
 
   @media screen and (max-width: 768px) {
     padding: 0 1rem;
+    padding-bottom: calc(0.3rem + env(safe-area-inset-bottom, 0px));
     gap: 0.5rem;
   }
 
