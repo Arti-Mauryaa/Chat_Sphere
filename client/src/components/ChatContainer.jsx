@@ -363,7 +363,6 @@ const Container = styled.div`
 
       .content {
         max-width: 45%;
-        overflow-wrap: break-word;
         padding: 0.9rem 1.2rem;
         font-size: 1rem;
         font-weight: 500;
@@ -373,6 +372,10 @@ const Container = styled.div`
         align-items: center;
         gap: 0.8rem;
         position: relative;
+        /* Allow content to shrink within parent flex container */
+        min-width: 0;
+        overflow-wrap: break-word;
+        word-break: break-word;
 
         @media screen and (max-width: 768px) {
           max-width: 80%;
@@ -382,6 +385,14 @@ const Container = styled.div`
           display: flex;
           flex-direction: column;
           flex: 1;
+          /* Allow text-wrapper to shrink and wrap long words */
+          min-width: 0;
+
+          p {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+          }
 
           .edited-tag {
             font-size: 0.65rem;
