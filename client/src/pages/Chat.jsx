@@ -18,6 +18,13 @@ export default function Chat() {
 
   const [unreadMessages, setUnreadMessages] = useState({});
 
+  // Ref to track currentChat dynamically without stale closure in socket listener
+  const currentChatRef = useRef(currentChat);
+
+  useEffect(() => {
+    currentChatRef.current = currentChat;
+  }, [currentChat]);
+
   // ✅ Get user from localStorage
   useEffect(() => {
     const stored = localStorage.getItem(
@@ -31,38 +38,31 @@ export default function Chat() {
     }
   }, [navigate]);
 
-  // ✅ Setup socket connection
+  // ✅ Setup socket connection and global unread message badge listener
   useEffect(() => {
     if (currentUser) {
       socket.current = io(host);
       socket.current.emit("add-user", currentUser._id);
-    }
 
-    return () => {
-      if (socket.current) {
-        socket.current.disconnect();
-      }
-    };
-  }, [currentUser]);
-
-  // ✅ Listen for incoming messages globally for badges
-  useEffect(() => {
-    if (socket.current) {
-      const handleBadgeUpdate = (msg) => {
-        if (!currentChat || msg.from !== currentChat._id) {
+      // Listen for incoming messages globally to update unread badge counts
+      socket.current.on("msg-receive", (msg) => {
+        const activeChat = currentChatRef.current;
+        if (!activeChat || msg.from !== activeChat._id) {
           setUnreadMessages((prev) => ({
             ...prev,
             [msg.from]: (prev[msg.from] || 0) + 1,
           }));
         }
-      };
-
-      socket.current.on("msg-receive", handleBadgeUpdate);
-      return () => {
-        socket.current.off("msg-receive", handleBadgeUpdate);
-      };
+      });
     }
-  }, [currentChat]);
+
+    return () => {
+      if (socket.current) {
+        socket.current.off("msg-receive");
+        socket.current.disconnect();
+      }
+    };
+  }, [currentUser]);
 
   // ✅ Fetch contacts
   useEffect(() => {
