@@ -46,8 +46,20 @@ io.on("connection", (socket) => {
     const sendUserSocket = onlineUsers.get(data.to);
     if (sendUserSocket) {
       socket.to(sendUserSocket).emit("msg-receive", {
+        _id: data._id,
         from: data.from,
         message: data.msg,
+      });
+    }
+  });
+
+  socket.on("msg-edit", (data) => {
+    const sendUserSocket = onlineUsers.get(data.to);
+    if (sendUserSocket) {
+      socket.to(sendUserSocket).emit("msg-edit-receive", {
+        messageId: data.messageId,
+        newMessage: data.newMessage,
+        from: data.from,
       });
     }
   });

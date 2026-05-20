@@ -2,18 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import ChatInput from "./ChatInput";
 import ProfileDrawer from "./ProfileDrawer";
-import { FaChevronLeft } from "react-icons/fa";
+import { FaChevronLeft, FaEdit } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import {
   sendMessageRoute,
   recieveMessageRoute,
+  editMessageRoute,
 } from "../utils/APIRoutes";
 
 export default function ChatContainer({ currentChat, socket, clearChat, currentUser }) {
   const [messages, setMessages] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [editingMessage, setEditingMessage] = useState(null);
   const chatMessagesRef = useRef();
 
   // helper to get logged-in user
@@ -35,6 +37,7 @@ export default function ChatContainer({ currentChat, socket, clearChat, currentU
 
         setMessages(data);
         setShowProfile(false); // Reset profile drawer on chat change
+        setEditingMessage(null); // Clear editing state on chat change
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -49,46 +52,95 @@ export default function ChatContainer({ currentChat, socket, clearChat, currentU
       const user = getUser();
       if (!user) return;
 
-      // socket send
-      socket.current.emit("send-msg", {
-        to: currentChat._id,
-        from: user._id,
-        msg,
-      });
-
       // save to DB
-      await axios.post(sendMessageRoute, {
+      const { data } = await axios.post(sendMessageRoute, {
         from: user._id,
         to: currentChat._id,
         message: msg,
       });
 
+      // socket send
+      socket.current.emit("send-msg", {
+        _id: data.message._id,
+        to: currentChat._id,
+        from: user._id,
+        msg,
+      });
+
       // update UI instantly
       setMessages((prev) => [
         ...prev,
-        { fromSelf: true, message: msg },
+        { _id: data.message._id, fromSelf: true, message: msg },
       ]);
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
 
-  // Receive messages
+  // Edit message
+  const handleEditMsg = async (messageId, newMessage) => {
+    try {
+      const user = getUser();
+      if (!user || !messageId) return;
+
+      // Update in DB
+      const { data } = await axios.post(editMessageRoute, {
+        messageId,
+        newMessage,
+      });
+
+      if (data.status) {
+        // Update local messages state
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg._id === messageId ? { ...msg, message: newMessage, isEdited: true } : msg
+          )
+        );
+
+        // socket notify
+        if (socket.current) {
+          socket.current.emit("msg-edit", {
+            messageId,
+            newMessage,
+            to: currentChat._id,
+            from: user._id,
+          });
+        }
+      }
+
+      setEditingMessage(null);
+    } catch (error) {
+      console.error("Error editing message:", error);
+    }
+  };
+
+  // Receive messages and edits
   useEffect(() => {
     if (!socket.current) return;
 
     const handleMessage = (msg) => {
       setArrivalMessage({
+        _id: msg._id,
         fromSelf: false,
         message: msg.message,
         from: msg.from,
       });
     };
 
+    const handleMessageEdit = (data) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === data.messageId ? { ...msg, message: data.newMessage, isEdited: true } : msg
+        )
+      );
+    };
+
     socket.current.on("msg-receive", handleMessage);
+    socket.current.on("msg-edit-receive", handleMessageEdit);
 
     return () => {
       socket.current.off("msg-receive", handleMessage);
+      socket.current.off("msg-edit-receive", handleMessageEdit);
     };
   }, [socket]);
 
@@ -138,14 +190,26 @@ export default function ChatContainer({ currentChat, socket, clearChat, currentU
         {/* Messages */}
         <div className="chat-messages" ref={chatMessagesRef}>
           {messages.map((message) => (
-            <div key={uuidv4()}>
+            <div key={message._id || uuidv4()}>
               <div
                 className={`message ${
                   message.fromSelf ? "sended" : "recieved"
                 }`}
               >
                 <div className="content">
-                  <p>{message.message}</p>
+                  <div className="text-wrapper">
+                    <p>{message.message}</p>
+                    {message.isEdited && <span className="edited-tag">(edited)</span>}
+                  </div>
+                  {message.fromSelf && (
+                    <button
+                      className="edit-msg-btn"
+                      onClick={() => setEditingMessage({ _id: message._id, message: message.message })}
+                      title="Edit Message"
+                    >
+                      <FaEdit />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -153,7 +217,12 @@ export default function ChatContainer({ currentChat, socket, clearChat, currentU
         </div>
 
         {/* Input */}
-        <ChatInput handleSendMsg={handleSendMsg} />
+        <ChatInput
+          handleSendMsg={handleSendMsg}
+          editingMessage={editingMessage}
+          handleEditMsg={handleEditMsg}
+          cancelEdit={() => setEditingMessage(null)}
+        />
       </Container>
       <ProfileDrawer
         contact={currentChat}
@@ -175,14 +244,14 @@ const OuterWrapper = styled.div`
 
 const Container = styled.div`
   display: grid;
-  grid-template-rows: 5rem 1fr 5.5rem;
+  grid-template-rows: 5rem 1fr auto;
   height: 100%;
   overflow: hidden;
   flex: 1;
   transition: all 0.3s ease;
 
   @media screen and (max-width: 768px) {
-    grid-template-rows: 4rem 1fr 4.8rem;
+    grid-template-rows: 4rem 1fr auto;
   }
 
   .chat-header {
@@ -190,8 +259,14 @@ const Container = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: 0 2rem;
+    height: 5rem;
     border-bottom: 1px solid ${(props) => props.theme.border};
     background-color: ${(props) => props.theme.sidebarBg}44;
+
+    @media screen and (max-width: 768px) {
+      height: 4rem;
+      padding: 0 1rem;
+    }
 
     .header-left {
       display: flex;
@@ -294,6 +369,53 @@ const Container = styled.div`
         font-weight: 500;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         line-height: 1.4;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        position: relative;
+
+        @media screen and (max-width: 768px) {
+          max-width: 80%;
+        }
+
+        .text-wrapper {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+
+          .edited-tag {
+            font-size: 0.65rem;
+            opacity: 0.65;
+            margin-top: 0.15rem;
+            font-style: italic;
+            align-self: flex-end;
+          }
+        }
+
+        .edit-msg-btn {
+          background: transparent;
+          border: none;
+          color: ${(props) => props.theme.messageSelfText}aa;
+          cursor: pointer;
+          opacity: 0;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.85rem;
+          padding: 0.2rem;
+
+          &:hover {
+            color: ${(props) => props.theme.messageSelfText};
+            transform: scale(1.15);
+          }
+        }
+
+        &:hover {
+          .edit-msg-btn {
+            opacity: 1;
+          }
+        }
       }
     }
 

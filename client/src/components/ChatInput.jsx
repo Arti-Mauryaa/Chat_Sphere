@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { IoMdSend } from "react-icons/io";
 import styled from "styled-components";
 import Picker from "emoji-picker-react";
 
-export default function ChatInput({ handleSendMsg }) {
+export default function ChatInput({ handleSendMsg, editingMessage = null, handleEditMsg = null, cancelEdit = null }) {
   const [msg, setMsg] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -18,41 +18,118 @@ export default function ChatInput({ handleSendMsg }) {
     setMsg(message);
   };
 
+  useEffect(() => {
+    if (editingMessage) {
+      setMsg(editingMessage.message);
+    } else {
+      setMsg("");
+    }
+  }, [editingMessage]);
+
   const sendChat = (event) => {
     event.preventDefault();
     if (msg.trim().length > 0) {
-      handleSendMsg(msg);
+      if (editingMessage && handleEditMsg) {
+        handleEditMsg(editingMessage._id, msg);
+      } else {
+        handleSendMsg(msg);
+      }
       setMsg("");
       setShowEmojiPicker(false);
     }
   };
 
   return (
-    <Container>
-      <div className="button-container">
-        <div className="emoji">
-          <BsEmojiSmileFill onClick={handleEmojiPickerhideShow} />
-          {showEmojiPicker && (
-            <div className="picker-wrapper">
-              <Picker onEmojiClick={handleEmojiClick} disableSearchBar={false} />
-            </div>
-          )}
+    <OuterContainer>
+      {editingMessage && (
+        <EditingBar>
+          <span className="edit-info">✍️ Editing message...</span>
+          <button type="button" className="cancel-edit-btn" onClick={cancelEdit} title="Cancel Edit">
+            Cancel
+          </button>
+        </EditingBar>
+      )}
+      <Container>
+        <div className="button-container">
+          <div className="emoji">
+            <BsEmojiSmileFill onClick={handleEmojiPickerhideShow} />
+            {showEmojiPicker && (
+              <div className="picker-wrapper">
+                <Picker onEmojiClick={handleEmojiClick} disableSearchBar={false} />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-      <form className="input-container" onSubmit={(event) => sendChat(event)}>
-        <input
-          type="text"
-          placeholder="Type your message here..."
-          onChange={(e) => setMsg(e.target.value)}
-          value={msg}
-        />
-        <button type="submit">
-          <IoMdSend />
-        </button>
-      </form>
-    </Container>
+        <form className="input-container" onSubmit={(event) => sendChat(event)}>
+          <input
+            type="text"
+            placeholder={editingMessage ? "Edit your message..." : "Type your message here..."}
+            onChange={(e) => setMsg(e.target.value)}
+            value={msg}
+          />
+          <button type="submit">
+            <IoMdSend />
+          </button>
+        </form>
+      </Container>
+    </OuterContainer>
   );
 }
+
+const OuterContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  position: relative;
+`;
+
+const EditingBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 2rem;
+  background-color: ${(props) => props.theme.activeBg}dd;
+  border-top: 1px solid ${(props) => props.theme.border};
+  border-bottom: 1px dashed ${(props) => props.theme.border};
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: barSlideIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  @media screen and (max-width: 768px) {
+    padding: 0.4rem 1rem;
+  }
+
+  .edit-info {
+    color: ${(props) => props.theme.primary};
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .cancel-edit-btn {
+    background: transparent;
+    border: none;
+    color: ${(props) => props.theme.textSecondary};
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #ef4444;
+    }
+  }
+
+  @keyframes barSlideIn {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+`;
 
 const Container = styled.div`
   display: flex;
