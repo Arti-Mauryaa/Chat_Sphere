@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import ChatInput from "./ChatInput";
-import Logout from "./Logout";
 import ProfileDrawer from "./ProfileDrawer";
 import { FaChevronLeft } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
@@ -134,7 +133,6 @@ export default function ChatContainer({ currentChat, socket, clearChat, currentU
               </div>
             </div>
           </div>
-          <Logout />
         </div>
 
         {/* Messages */}

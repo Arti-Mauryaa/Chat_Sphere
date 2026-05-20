@@ -4,6 +4,7 @@ import Logo from "../assets/logo.svg";
 import { FaPalette, FaSearch, FaEdit } from "react-icons/fa";
 import { useAppTheme, themes } from "../utils/ThemeContext";
 import CurrentUserDrawer from "./CurrentUserDrawer";
+import Logout from "./Logout";
 
 export default function Contacts({ contacts, changeChat, currentUser, onProfileUpdate, unreadMessages = {} }) {
   const [currentUserName, setCurrentUserName] = useState(undefined);
@@ -44,8 +45,11 @@ export default function Contacts({ contacts, changeChat, currentUser, onProfileU
       {currentUserName && currentUserImage && (
         <Container>
           <div className="brand">
-            <img src={Logo} alt="logo" />
-            <h3>ChatSphere</h3>
+            <div className="brand-info">
+              <img src={Logo} alt="logo" />
+              <h3>ChatSphere</h3>
+            </div>
+            <Logout />
           </div>
 
           <div className="search-container">
@@ -186,19 +190,25 @@ const Container = styled.div`
   .brand {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
-    justify-content: center;
-    padding: 0 1rem;
-    img {
-      height: 2.2rem;
-      filter: drop-shadow(0 0 5px ${(props) => props.theme.primary}50);
-    }
-    h3 {
-      color: ${(props) => props.theme.textPrimary};
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-size: 1.2rem;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    
+    .brand-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      
+      img {
+        height: 2.2rem;
+        filter: drop-shadow(0 0 5px ${(props) => props.theme.primary}50);
+      }
+      h3 {
+        color: ${(props) => props.theme.textPrimary};
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 1.2rem;
+      }
     }
   }
 
