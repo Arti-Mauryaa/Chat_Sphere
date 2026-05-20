@@ -196,20 +196,20 @@ export default function ChatContainer({ currentChat, socket, clearChat, currentU
                   message.fromSelf ? "sended" : "recieved"
                 }`}
               >
+                {message.fromSelf && (
+                  <button
+                    className="edit-msg-btn"
+                    onClick={() => setEditingMessage({ _id: message._id, message: message.message })}
+                    title="Edit Message"
+                  >
+                    <FaEdit />
+                  </button>
+                )}
                 <div className="content">
                   <div className="text-wrapper">
                     <p>{message.message}</p>
                     {message.isEdited && <span className="edited-tag">(edited)</span>}
                   </div>
-                  {message.fromSelf && (
-                    <button
-                      className="edit-msg-btn"
-                      onClick={() => setEditingMessage({ _id: message._id, message: message.message })}
-                      title="Edit Message"
-                    >
-                      <FaEdit />
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
@@ -360,6 +360,34 @@ const Container = styled.div`
       display: flex;
       align-items: center;
       animation: messageFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 0.5rem;
+
+      &:hover {
+        .edit-msg-btn {
+          opacity: 1;
+        }
+      }
+
+      .edit-msg-btn {
+        background: transparent;
+        border: none;
+        color: ${(props) => props.theme.textSecondary};
+        cursor: pointer;
+        opacity: 0;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        padding: 0.4rem;
+        border-radius: 50%;
+
+        &:hover {
+          color: ${(props) => props.theme.primary};
+          background-color: ${(props) => props.theme.contactHoverBg};
+          transform: scale(1.15);
+        }
+      }
 
       .content {
         max-width: 45%;
@@ -370,7 +398,6 @@ const Container = styled.div`
         line-height: 1.4;
         display: flex;
         align-items: center;
-        gap: 0.8rem;
         position: relative;
         /* Allow content to shrink within parent flex container */
         min-width: 0;
@@ -400,31 +427,6 @@ const Container = styled.div`
             margin-top: 0.15rem;
             font-style: italic;
             align-self: flex-end;
-          }
-        }
-
-        .edit-msg-btn {
-          background: transparent;
-          border: none;
-          color: ${(props) => props.theme.messageSelfText}aa;
-          cursor: pointer;
-          opacity: 0;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.85rem;
-          padding: 0.2rem;
-
-          &:hover {
-            color: ${(props) => props.theme.messageSelfText};
-            transform: scale(1.15);
-          }
-        }
-
-        &:hover {
-          .edit-msg-btn {
-            opacity: 1;
           }
         }
       }
