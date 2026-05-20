@@ -1,4 +1,6 @@
-# 💬 ChatSphere (or Your App Name)
+# 💬 Chat_Sphere
+
+**Live Demo:** [https://chat-sphere-mu.vercel.app/](https://chat-sphere-mu.vercel.app/)
 
 A real-time chat application built using the MERN Stack (MongoDB, Express, React, Node.js) with Socket.io for instant messaging.
 
@@ -25,8 +27,8 @@ A real-time chat application built using the MERN Stack (MongoDB, Express, React
 
 ### 1. Clone repo
 ```bash
-git clone https://github.com/your-username/chat-app.git
-cd chat-app
+git clone https://github.com/Arti-Mauryaa/Chat_Sphere.git
+cd Chat_Sphere
 2. Install dependencies
 Backend
 cd server

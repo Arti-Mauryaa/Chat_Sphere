@@ -1,6 +1,8 @@
-# 💬 ChatSphere – Real-Time Chat Application
+# 💬 Chat_Sphere – Real-Time Chat Application
 
-ChatSphere is a full-stack real-time chat application built using the **MERN Stack (MongoDB, Express, React, Node.js)** and **Socket.io**. It enables users to communicate instantly with a smooth and responsive interface.
+**Live Demo:** [https://chat-sphere-mu.vercel.app/](https://chat-sphere-mu.vercel.app/)
+
+Chat_Sphere is a full-stack real-time chat application built using the **MERN Stack (MongoDB, Express, React, Node.js)** and **Socket.io**. It enables users to communicate instantly with a smooth and responsive interface.
 
 ---
 
@@ -39,7 +41,7 @@ ChatSphere is a full-stack real-time chat application built using the **MERN Sta
 ## 📁 Project Structure
 
 ```
-ChatSphere/
+Chat_Sphere/
 ├── client/     # React frontend
 ├── server/     # Node.js backend
 ├── screenshots/  # App screenshots
@@ -52,8 +54,8 @@ ChatSphere/
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/Arti-Mauryaa/ChatSphere.git
-cd ChatSphere
+git clone https://github.com/Arti-Mauryaa/Chat_Sphere.git
+cd Chat_Sphere
 ```
 
 ---
